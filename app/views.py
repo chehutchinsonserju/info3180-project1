@@ -61,3 +61,22 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+
+
+#====================================================================================================#
+from .forms import AddPropertyForm
+
+
+
+@app.route('/properties/create', methods=['GET', 'POST'])
+def addproperty():
+    form = AddPropertyForm()
+    if form.validate_on_submit():
+        photo_path = save_photo(form.photo.data)
+        new_property = Property(title=form.title.data, description=form.description.data, rooms=form.rooms.data, bathrooms=form.bathrooms.data, price=form.price.data, property_type=form.property_type.data, location=form.location.data, photo_path=photo_path)
+        db.session.add(new_property)
+        db.session.commit()
+        flash('Property added successfully', 'success')
+        return redirect(url_for('properties'))
+    return render_template('addproperty.html', form=form)
