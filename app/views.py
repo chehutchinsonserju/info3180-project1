@@ -5,9 +5,10 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file contains the routes for your application.
 """
 
-from app import app
-from flask import render_template, request, redirect, url_for
-
+from app import app, db
+from app.models import Property
+from flask import render_template, request, redirect, url_for, flash
+from .forms import AddPropertyForm
 
 ###
 # Routing for your application.
@@ -62,11 +63,22 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
+import os
+from werkzeug.utils import secure_filename
 
+def save_photo(photo):
+    if not photo:
+        return None
 
-#====================================================================================================#
-from .forms import AddPropertyForm
+    filename = secure_filename(photo.filename)
+    ext = filename.rsplit('.', 1)[1].lower()
 
+    if ext not in {'jpg', 'jpeg', 'png', 'gif'}:
+        return None
+
+    filename = f"{os.urandom(24).hex()}.{ext}"
+    photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return filename
 
 
 @app.route('/properties/create', methods=['GET', 'POST'])
