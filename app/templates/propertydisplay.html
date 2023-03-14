@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block main %}
+{% include 'flashmsg.html' %}
+
+<h1 class="prop-header">Properties</h1>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/propertydisplay.css') }}">
+</head>
+<div class="properties">
+        {% for prop in properties %}
+            <div class="property-box">
+                <div>
+                    <img class="property-box-photo" src="{{ url_for('get_image', filename=prop.photo) }}" alt="Property Image"/>
+                </div>
+                <div class="property-box-body">
+                    <h3>{{ prop.title }}</h3>
+                    <p><b class="hold">📍</b> {{ prop.location }}</p>
+                    <!-- this might also break it emoji -->
+                    <p class="price"><span>${{ prop.price }}</span></p>
+
+                </div>
+                <a href="{{url_for('view', property_id=prop.id)}}"
+                ><button>View Property</button></a>
+            </div>
+
+          
+
+        {% endfor %}
+
+</div>
+
+{% endblock %}

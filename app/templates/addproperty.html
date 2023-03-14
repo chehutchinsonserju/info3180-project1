@@ -6,34 +6,36 @@
 </head>
 <div id="container">
   <div id="label">
-    <h1>Add New Property</h1>
+    <h1><b>Add New Property</b></h1>
   </div>
 
   <div id="form">
     <form method="POST" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <div class="mb-3">
+      <div class="fields">
         {{ form.title.label }} {{ form.title(size=40, class="form-control") }}
       </div>
-      <div class="mb-3">
+      <div class="fields">
         {{ form.description.label }} {{ form.description(class="form-control") }}
       </div>
-      <div class="mb-3">
-        {{ form.rooms.label }} {{ form.rooms(class="form-control") }}
+      <div class="row">
+        <div class="fields">
+          {{ form.bedrooms.label }} {{ form.bedrooms(class="form-control") }}
+        </div>
+        <div class="fields">
+          {{ form.bathrooms.label }} {{ form.bathrooms(class="form-control") }}
+        </div>
       </div>
-      <div class="mb-3">
-        {{ form.bathrooms.label }} {{ form.bathrooms(class="form-control") }}
-      </div>
-      <div class="mb-3">
+      <div class="fields">
         {{ form.price.label }} {{ form.price(class="form-control") }}
       </div>
-      <div class="mb-3">
-        {{ form.property_type.label }} {{ form.property_type(class="form-control") }}
+      <div class="fields">
+        {{ form.type.label }} {{ form.type(class="form-control") }}
       </div>
-      <div class="mb-3">
+      <div class="fields">
         {{ form.location.label }} {{ form.location(class="form-control") }}
       </div>
-      <div class="mb-3">
+      <div class="fields">
         {{ form.photo.label }} {{ form.photo(class="form-control") }}
       </div>
       <button type="submit" class="btn btn-primary">Add Property</button>

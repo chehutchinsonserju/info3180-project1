@@ -1,13 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, IntegerField, SelectField, FileField
-from wtforms.validators import DataRequired, NumberRange, InputRequired
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, FileField, SubmitField
+from wtforms.validators import DataRequired
+from flask_wtf.csrf import CSRFProtect
+
 
 class AddPropertyForm(FlaskForm):
-    title = StringField('Property Title', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])
-    rooms = IntegerField('Number of Rooms', validators=[InputRequired(), NumberRange(min=1)])
-    bathrooms = IntegerField('Number of Bathrooms', validators=[InputRequired(), NumberRange(min=1)])
-    price = IntegerField('Price', validators=[InputRequired(), NumberRange(min=0)])
-    property_type = SelectField('Property Type', choices=[('house', 'House'), ('apartment', 'Apartment'), ('mansion', 'Mansion'), ('dorm', 'Dorm')], validators=[InputRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    bedrooms = IntegerField('No. of Rooms', validators=[DataRequired()])
+    bathrooms = IntegerField('No. of Bathrooms', validators=[DataRequired()])
     location = StringField('Location', validators=[DataRequired()])
+    price = IntegerField('Price', validators=[DataRequired()])
+    description = TextAreaField('Description',validators=[DataRequired()])
+    type = SelectField('Type', choices=[('house', 'House'), ('apartment', 'Apartment')], validators=[DataRequired()])
     photo = FileField('Photo', validators=[DataRequired()])
+    submit = SubmitField('Add Property')

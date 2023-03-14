@@ -5,14 +5,15 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file contains the routes for your application.
 """
 
+import os
 from app import app, db
-from app.models import Property
 from flask import render_template, request, redirect, url_for, flash
-from .forms import AddPropertyForm
+from werkzeug.utils import secure_filename
+from flask.helpers import send_from_directory
 
-###
-# Routing for your application.
-###
+from app.forms import AddPropertyForm
+from app.models import Property
+
 
 @app.route('/')
 def home():
@@ -26,24 +27,64 @@ def about():
     return render_template('about.html', name="Mary Jane")
 
 
-###
-# The functions below should be applicable to all Flask apps.
-###
+@app.route('/properties/create', methods=["GET", "POST"])
+def create():
+    form = AddPropertyForm()
 
-# Display Flask WTF errors as Flash messages
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ), 'danger')
+    if request.method == 'POST' and form.validate_on_submit():
+        # Save property data to database
+        title = form.title.data
+        description = form.description.data
+        bedrooms = form.bedrooms.data
+        bathrooms = form.bathrooms.data
+        price = form.price.data
+        location = form.location.data
+        type = form.type.data
+        photo = form.photo.data
+        photo_upload = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_upload))
 
-@app.route('/<file_name>.txt')
-def send_text_file(file_name):
-    """Send your static text file."""
-    file_dot_text = file_name + '.txt'
-    return app.send_static_file(file_dot_text)
+        property_model = Property(
+            title=title,
+            description=description,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms,
+            price=price,
+            location=location,
+            type=type,
+            photo=photo_upload
+        )
+
+        db.session.add(property_model)
+        db.session.commit()
+
+        flash('Property successfully saved', 'success')
+        return redirect(url_for('properties'))
+
+    return render_template('addproperty.html', form=form)
+
+
+@app.route('/properties')
+def properties():
+    properties = Property.query.all()
+    return render_template("propertydisplay.html", properties=properties)
+
+
+@app.route("/property/<property_id>")
+def view(property_id):
+    prop = Property.query.filter_by(id=property_id).first()
+
+    if prop.photo is not None:
+        img_url = url_for('get_image', filename=prop.photo)
+    else:
+        img_url = None
+
+    return render_template("viewaproperty.html", prop=prop, photo_url=img_url)
+
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.after_request
@@ -63,32 +104,19 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
-import os
-from werkzeug.utils import secure_filename
 
-def save_photo(photo):
-    if not photo:
-        return None
-
-    filename = secure_filename(photo.filename)
-    ext = filename.rsplit('.', 1)[1].lower()
-
-    if ext not in {'jpg', 'jpeg', 'png', 'gif'}:
-        return None
-
-    filename = f"{os.urandom(24).hex()}.{ext}"
-    photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    return filename
+# Display Flask WTF errors as Flash messages
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), 'danger')
 
 
-@app.route('/properties/create', methods=['GET', 'POST'])
-def addproperty():
-    form = AddPropertyForm()
-    if form.validate_on_submit():
-        photo_path = save_photo(form.photo.data)
-        new_property = Property(title=form.title.data, description=form.description.data, rooms=form.rooms.data, bathrooms=form.bathrooms.data, price=form.price.data, property_type=form.property_type.data, location=form.location.data, photo_path=photo_path)
-        db.session.add(new_property)
-        db.session.commit()
-        flash('Property added successfully', 'success')
-        return redirect(url_for('properties'))
-    return render_template('addproperty.html', form=form)
+@app.route('/<file_name>.txt')
+def send_text_file(file_name):
+    """Send your static text file."""
+    file_dot_text = file_name + '.txt'
+    return app.send_static_file(file_dot_text)

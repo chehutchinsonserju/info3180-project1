@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block main %}
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/viewaproperty.css') }}">
+</head>
+<div class="property">
+    <img id="img" src="{{ photo_url }}" alt="property_photo"/>
+    <div class="property-body">
+        <h2>{{prop.title}}</h2>
+        <div class="bubbles">
+            <div id="price">${{prop.price}}</div>
+            <div id="type">{{prop.type.capitalize()}}</div>
+        </div>
+        <p>{{prop.description}}</p>
+        <!-- more potential destruction due to emojis -->
+        <div class="rooms">
+            <i class="bedrm"></i>🛏️ {{prop.bedrooms}} Bedrooms
+            <i class="bathrm"></i>🚿 {{prop.bathrooms}} Bathrooms
+        </div>
+        <div class="location"><i class="hold"></i>📍 {{prop.location}}</div>
+        <button id="emailBtn">Email Realtor</button>
+    </div>
+</div>
+{% endblock %}
+
